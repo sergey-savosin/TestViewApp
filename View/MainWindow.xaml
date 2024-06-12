@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:view="clr-namespace:TestViewApp.View"
         xmlns:local="clr-namespace:TestViewApp"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
@@ -66,27 +67,10 @@
                 </ListView.ItemTemplate>
             </ListView>
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
-            <DataGrid x:Name="MainGrid"
-                ItemsSource="{Binding TestRunFilteredList}"
-                SelectedItem="{Binding SelectedTestRunItem}"
-                AutoGenerateColumns="False"
-                Grid.Column="2"
+            <view:AzureRunsList 
                 DataContextChanged="OnMainGrid_DataContextChanged"
-                >
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="TestRunId" Width="10" Binding="{Binding TestRunId}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="TestRunName" Width="*" Binding="{Binding TestRunName}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="PipelineStage" Width="80" Binding="{Binding StageName}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="BuildDefinition" Width="*" Binding="{Binding BuildDefinitionName}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="StartedDate UTC" Width="130" Binding="{Binding StartedDate, StringFormat=\{0:dd-MMM HH:mm:ss\}}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="Duration (sec)" Width="90" Binding="{Binding DurationInSeconds}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="Total" Width="50" Binding="{Binding TotalTests}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="Passed" Width="50" Binding="{Binding PassedTests}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="Unanalyzed" Width="50" Binding="{Binding UnanalyzedTests}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="BuildReason" Width="80" Binding="{Binding BuildReason}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="RequestedBy" Width="80" Binding="{Binding BuildRequestedByInfo}" IsReadOnly="True" />
-                </DataGrid.Columns>
-            </DataGrid>
+                Grid.Column="2"
+                />
         </Grid>
     </DockPanel>
 </Window>
