@@ -1,8 +1,12 @@
 # TestViewApp
 Test results viewer
 
-Для запуска необходимо добавить файл SpecialAppSettings.config с таким содержимым:
+Р”Р»СЏ Р·Р°РїСѓСЃРєР° РЅРµРѕР±С…РѕРґРёРјРѕ РґРѕР±Р°РІРёС‚СЊ С„Р°Р№Р» SpecialAppSettings.config СЃ С‚Р°РєРёРј СЃРѕРґРµСЂР¶РёРјС‹Рј:
+```xml
 <?xml version="1.0" encoding="utf-8" ?>
 <appSettings>
 	<add key="AzureUrlBase" value="https://{azure-url}/{organization}/{project}/"/>
 </appSettings>
+```
+
+Ok.
