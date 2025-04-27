@@ -11,6 +11,7 @@ namespace TestViewApp.Repository.Azure
         readonly string _baseUrl;
         const string _buildsUrlTemplate = @"_apis/build/builds/{0}?api-version=6.0";
         const string _buildsListUrlTemplate = @"_apis/build/builds?buildIds={0}&api-version=6.0";
+        const string _buildsListByBuildDefinitionUrlTemplate = @"_apis/build/builds?definitions={0}&$top={1}&api-version=7.1";
 
         HttpClientHandler authHandler;
         HttpClient httpClient;
@@ -47,10 +48,33 @@ namespace TestViewApp.Repository.Azure
             return bs?.value?.ToArray<Build>() ?? Array.Empty<Build>();
         }
 
+        public async Task<Build[]> GetListDataByBuildDefinition(int buildDefinitionId)
+        {
+            string url = prepareBuildsListByBuildDefinitionUrl(buildDefinitionId);
+
+            HttpResponseMessage message = await httpClient.GetAsync(url);
+            if (!message.IsSuccessStatusCode)
+            {
+                throw new Exception(message.ToString());
+            }
+
+            var responseStr = await message.Content.ReadAsStringAsync();
+
+            var bs = JsonConvert.DeserializeObject<BuildList>(responseStr);
+
+            return bs?.value?.ToArray<Build>() ?? Array.Empty<Build>();
+        }
+
         private string prepareBuildsListUrl(int[] buildIds)
         {
             string strList = string.Join(",", buildIds);
             return string.Concat(_baseUrl, string.Format(_buildsListUrlTemplate, strList));
+        }
+
+        private string prepareBuildsListByBuildDefinitionUrl(int buildDefinitionId)
+        {
+            const int topN = 10;
+            return string.Concat(_baseUrl, string.Format(_buildsListByBuildDefinitionUrlTemplate, buildDefinitionId, topN));
         }
     }
 }

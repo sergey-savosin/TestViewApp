@@ -1,6 +1,4 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using System.Windows;
 using TestViewApp.View;
 using TestViewApp.ViewModel;
 
@@ -19,6 +17,13 @@ namespace TestViewApp
             var viewModel = new MainWindowViewModel();
             mainWindow.DataContext = viewModel;
             mainWindow.Show();
+        }
+
+        private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            MessageBox.Show("Произошла ошибка."
+                + Environment.NewLine + e.Exception.Message + "\r\n" + e.Exception.StackTrace, "Ошибка в приложении");
+            e.Handled = true;
         }
     }
 

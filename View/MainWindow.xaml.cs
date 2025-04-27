@@ -8,7 +8,7 @@ namespace TestViewApp.View
     /// </summary>
     public partial class MainWindow : Window
     {
-        //private MainWindowViewModel m_ViewModel;
+        private MainWindowViewModel m_ViewModel;
 
         public MainWindow()
         {
@@ -17,12 +17,7 @@ namespace TestViewApp.View
 
         private void OnMainGrid_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            //m_ViewModel = (MainWindowViewModel)this.DataContext;
-        }
-
-        private void ListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-
+            m_ViewModel = (MainWindowViewModel)this.DataContext;
         }
     }
 }

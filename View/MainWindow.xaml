@@ -3,8 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:view="clr-namespace:TestViewApp.View"
         xmlns:local="clr-namespace:TestViewApp"
+        xmlns:domain="clr-namespace:TestViewApp.Domain"
+        xmlns:utility="clr-namespace:TestViewApp.UtilityClasses"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
@@ -56,7 +57,7 @@
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="80*"/>
             </Grid.ColumnDefinitions>
-            <ListView ItemsSource="{Binding BuildDefinitionList}" SelectedItem="{Binding SelectedBuildDefinitionItem}"
+            <!--<ListView ItemsSource="{Binding BuildDefinitionList}" SelectedItem="{Binding SelectedBuildDefinitionItem}"
                       SelectionChanged="ListView_SelectionChanged">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -65,12 +66,74 @@
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </ListView>
+            </ListView>-->
+            <utility:ExtendedTreeView ItemsSource="{Binding BuildDefinitionList}" SelectedItem_="{Binding SelectedBuildDefinitionItem, Mode=TwoWay}">
+                <utility:ExtendedTreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Path=Children}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Path=Name}"/>
+                            <TextBlock Text=" [ Id:"/>
+                            <TextBlock Text="{Binding Path=Id}"/>
+                            <TextBlock Text=" ]"/>
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                </utility:ExtendedTreeView.ItemTemplate>
+            </utility:ExtendedTreeView>
+            
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
-            <view:AzureRunsList 
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40*"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="60*"/>
+                </Grid.RowDefinitions>
+                <DataGrid x:Name="BuildListGrid"
+                          ItemsSource="{Binding BuildList}"
+                          SelectedItem="{Binding SelectedBuildItem}"
+                          AutoGenerateColumns="False"
+                          Grid.Row="0"
+                          DataContextChanged="OnMainGrid_DataContextChanged">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Id" Width="60" Binding="{Binding Id}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="BuildNumber" Width="400" Binding="{Binding BuildNumber}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="Status" Width="80" Binding="{Binding Status}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="Result" Width="80" Binding="{Binding Result}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="QueueTime" Width="100" Binding="{Binding QueueTime, StringFormat=\{0:dd-MMM HH:mm:ss\}}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="StartTime" Width="100" Binding="{Binding StartTime, StringFormat=\{0:dd-MMM HH:mm:ss\}}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="FinishTime" Width="100" Binding="{Binding FinishTime, StringFormat=\{0:dd-MMM HH:mm:ss\}}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="Uri" Width="160" Binding="{Binding Uri}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="Reason" Width="100" Binding="{Binding Reason}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="RequestedFor" Width="200" Binding="{Binding RequestedFor.DisplayName}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="RequestedBy" Width="200" Binding="{Binding RequestedBy.DisplayName}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="LastChangedBy" Width="200" Binding="{Binding LastChangedBy.DisplayName}" IsReadOnly="True" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                
+                <GridSplitter Grid.Row="1" Height="5" VerticalAlignment="Stretch" />
+                
+                <DataGrid x:Name="TestRunListGrid"
+                ItemsSource="{Binding TestRunFilteredList}"
+                SelectedItem="{Binding SelectedTestRunItem}"
+                AutoGenerateColumns="False"
+                Grid.Row="2"
                 DataContextChanged="OnMainGrid_DataContextChanged"
-                Grid.Column="2"
-                />
+                >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="TestRunId" Width="10" Binding="{Binding TestRunId}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="TestRunName" Width="*" Binding="{Binding TestRunName}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="PipelineStage" Width="80" Binding="{Binding StageName}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="BuildDefinition" Width="*" Binding="{Binding BuildDefinitionName}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="StartedDate UTC" Width="130" Binding="{Binding StartedDate, StringFormat=\{0:dd-MMM HH:mm:ss\}}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="Duration (sec)" Width="90" Binding="{Binding DurationInSeconds}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="Total" Width="50" Binding="{Binding TotalTests}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="Passed" Width="50" Binding="{Binding PassedTests}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="Unanalyzed" Width="50" Binding="{Binding UnanalyzedTests}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="BuildReason" Width="80" Binding="{Binding BuildReason}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="RequestedBy" Width="80" Binding="{Binding BuildRequestedByInfo}" IsReadOnly="True" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
         </Grid>
     </DockPanel>
 </Window>

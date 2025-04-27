@@ -26,7 +26,8 @@ namespace TestViewApp.ViewModel.Command
         public void Execute(object? parameter)
         {
             int deltaInHours = _mainWindowViewModel.DeltaInHours;
-            _mainWindowViewModel.LoadRunItems(deltaInHours).ConfigureAwait(false);
+            //_mainWindowViewModel.LoadRunItems(deltaInHours).ConfigureAwait(false);
+            _mainWindowViewModel.LoadBuildDefinitions().ConfigureAwait(false);
         }
     }
 }

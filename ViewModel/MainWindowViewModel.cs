@@ -1,10 +1,12 @@
-﻿using Microsoft.VisualStudio.Services.Common;
+﻿using Microsoft.TeamFoundation.Build.WebApi;
+using Microsoft.VisualStudio.Services.Common;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
 using System.Windows.Data;
 using System.Windows.Input;
+using TestViewApp.BusinessLogic;
 using TestViewApp.Domain;
 using TestViewApp.Repository.Azure;
 using TestViewApp.UtilityClasses;
@@ -17,9 +19,13 @@ namespace TestViewApp.ViewModel
         private ObservableCollection<TestRunItem> p_TestRunList;
         private int p_ItemCount;
         private ObservableCollection<BuildDefinitionItem> p_BuildDefinitionList;
+        private ObservableCollection<Build> p_BuildList;
         private int p_DeltaInHours;
         private bool p_LoadInProgress;
         private BuildDefinitionItem selectedBuildDefinitionItem;
+        private Build selectedBuildItem;
+
+        private const string constKormBDeploysPath = @"\Korm B\Deploy\SaleListManagement";
 
         public MainWindowViewModel()
         {
@@ -51,6 +57,8 @@ namespace TestViewApp.ViewModel
             }
         }
 
+        public TestRunItem SelectedTestRunItem { get; set; }
+
         private bool Filter(TestRunItem p)
         {
             if (p == null)
@@ -75,8 +83,6 @@ namespace TestViewApp.ViewModel
             }
         }
 
-        public TestRunItem SelectedTestRunItem { get; set; }
-
         public BuildDefinitionItem SelectedBuildDefinitionItem {
             get { return selectedBuildDefinitionItem; }
             set
@@ -84,6 +90,22 @@ namespace TestViewApp.ViewModel
                 selectedBuildDefinitionItem = value;
                 // RaisePropertyChangedEvent("SelectedBuildDefinitionItem");
                 OnSelectedBuildDefinitionItemChanged();
+            }
+        }
+
+        public ObservableCollection<Build> BuildList
+        {
+            get { return p_BuildList; }
+            set { p_BuildList = value; }
+        }
+
+        public Build SelectedBuildItem
+        {
+            get { return selectedBuildItem; }
+            set
+            {
+                selectedBuildItem = value;
+                OnSelectedBuildItemChanged();
             }
         }
 
@@ -125,14 +147,23 @@ namespace TestViewApp.ViewModel
                 .Select(t => new BuildDefinitionItem() { Name = t.BuildDefinitionName ?? "-" })
                 .DistinctBy(t => t.Name)
                 .ToList();
-            BuildDefinitionList.Clear();
-            BuildDefinitionList.Add(new BuildDefinitionItem() { Name = "(all)" });
-            BuildDefinitionList.AddRange(bd);
+            //BuildDefinitionList.Clear();
+            //BuildDefinitionList.Add(new BuildDefinitionItem() { Name = "(all)" });
+            //BuildDefinitionList.AddRange(bd);
         }
 
-        private void OnSelectedBuildDefinitionItemChanged()
+        private async Task OnSelectedBuildDefinitionItemChanged()
         {
-            TestRunFilteredList.Refresh();
+            var buildDefinition = SelectedBuildDefinitionItem;
+            if (buildDefinition != null)
+            {
+                await LoadBuildList(buildDefinition.Id);
+            }
+        }
+
+        private void OnSelectedBuildItemChanged()
+        {
+            //ToDo
         }
 
         private async void Initialize()
@@ -141,11 +172,13 @@ namespace TestViewApp.ViewModel
             ReloadRunItems = new ReloadRunItemsCommand(this);
 
             p_BuildDefinitionList = new ObservableCollection<BuildDefinitionItem>();
+            p_BuildList = new ObservableCollection<Build>();
             p_TestRunList = new ObservableCollection<TestRunItem>();
-            p_TestRunList.CollectionChanged += OnTestRunList_CollectionChanged;
+            //p_TestRunList.CollectionChanged += OnTestRunList_CollectionChanged;
             DeltaInHours = 12;
 
-            await LoadRunItems(DeltaInHours);
+            //await LoadRunItems(DeltaInHours);
+            await LoadBuildDefinitions();
         }
 
         private void OnTestRunList_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -166,6 +199,47 @@ namespace TestViewApp.ViewModel
             TestRunList.AddRange(res);
 
             LoadInProgress = false;
+        }
+
+        public async Task LoadBuildDefinitions()
+        {
+            LoadInProgress = true;
+            string azureUrlBase = ConfigurationManager.AppSettings["AzureUrlBase"] ?? throw new Exception("AzureUrlBase is not found in AppSettings");
+            var azureBuildDefinition = new AzureBuildDefinitions(azureUrlBase);
+            var buildDefinitionListProcessor = new BuildDefinitionListProcessor(azureBuildDefinition);
+            var buildDefArray = await buildDefinitionListProcessor.GetListAsync(constKormBDeploysPath);
+            IEnumerable<BuildDefinitionItem> buildDefUIArray = MakeBuildDefTree(buildDefArray);
+            BuildDefinitionList.Clear();
+            BuildDefinitionList.AddRange(buildDefUIArray);
+
+            LoadInProgress = false;
+        }
+
+        private async Task LoadBuildList(int id)
+        {
+            LoadInProgress = true;
+            string azureUrlBase = ConfigurationManager.AppSettings["AzureUrlBase"] ?? throw new Exception("AzureUrlBase is not found in AppSettings");
+            var azureBuild = new AzureBuilds(azureUrlBase);
+            var buildListProcessor = new BuildListProcessor(azureBuild);
+            var buildArray = await buildListProcessor.GetListAsync(id);
+            BuildList.Clear();
+            BuildList.AddRange(buildArray);
+
+            LoadInProgress = false;
+        }
+
+
+        private static IEnumerable<BuildDefinitionItem> MakeBuildDefTree(DefinitionReference[] buildDefArray)
+        {
+            return buildDefArray
+                .Select(t => new BuildDefinitionItem
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Path = t.Path,
+                })
+                .OrderBy(t => t.Path)
+                .ThenBy(t => t.Name);
         }
     }
 }
