@@ -1,10 +1,8 @@
 ﻿using Microsoft.TeamFoundation.Build.WebApi;
+using Microsoft.TeamFoundation.TestManagement.WebApi;
 using Microsoft.VisualStudio.Services.Common;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Configuration;
-using System.Windows.Data;
 using System.Windows.Input;
 using TestViewApp.BusinessLogic;
 using TestViewApp.Domain;
@@ -18,9 +16,11 @@ namespace TestViewApp.ViewModel
     {
         private ObservableCollection<BuildDefinitionItem> p_BuildDefinitionList = null!;
         private ObservableCollection<Build> p_BuildList = null!;
+        private ObservableCollection<TestRun> p_TestRunList = null!;
         private bool p_LoadInProgress;
         private BuildDefinitionItem selectedBuildDefinitionItem = null!;
         private Build selectedBuildItem = null!;
+        private TestRun selectedTestRunItem = null!;
 
         //private const string constKormBDeploysPath = @"\Korm B\Deploy\SaleListManagement";
         private const string constKormBDeploysPath = @"\Korm B\Tests\*";
@@ -49,7 +49,6 @@ namespace TestViewApp.ViewModel
             {
                 selectedBuildDefinitionItem = value;
                 // RaisePropertyChangedEvent("SelectedBuildDefinitionItem");
-
                 OnSelectedBuildDefinitionItemChanged().ConfigureAwait(false);
             }
         }
@@ -66,7 +65,23 @@ namespace TestViewApp.ViewModel
             set
             {
                 selectedBuildItem = value;
-                OnSelectedBuildItemChanged();
+                OnSelectedBuildItemChanged().ConfigureAwait(false);
+            }
+        }
+
+        public ObservableCollection<TestRun> TestRunList
+        {
+            get { return p_TestRunList; }
+            set { p_TestRunList = value; }
+        }
+
+        public TestRun SelectedTestRunItem
+        {
+            get { return selectedTestRunItem; }
+            set
+            {
+                selectedTestRunItem = value;
+                OnSelectedTestRunItemChanged();
             }
         }
 
@@ -89,9 +104,20 @@ namespace TestViewApp.ViewModel
             }
         }
 
-        private void OnSelectedBuildItemChanged()
+        private async Task OnSelectedBuildItemChanged()
         {
             //ToDo
+            var build = SelectedBuildItem;
+            if (build != null)
+            {
+                await LoadTestRunList(build.Uri);
+            }
+        }
+
+        private void OnSelectedTestRunItemChanged()
+        {
+            //ToDo
+            throw new NotImplementedException();
         }
 
         private async Task InitializeAsync()
@@ -101,6 +127,7 @@ namespace TestViewApp.ViewModel
 
             p_BuildDefinitionList = new ObservableCollection<BuildDefinitionItem>();
             p_BuildList = new ObservableCollection<Build>();
+            p_TestRunList = new ObservableCollection<TestRun>();
 
             await LoadBuildDefinitions();
         }
@@ -131,6 +158,13 @@ namespace TestViewApp.ViewModel
             BuildList.AddRange(buildArray);
 
             LoadInProgress = false;
+        }
+
+        private async Task LoadTestRunList(Uri uri)
+        {
+            LoadInProgress = true;
+            string azureUrlBase = ConfigurationManager.AppSettings["AzureUrlBase"] ?? throw new Exception("AzureUrlBase is not found in AppSettings");
+            //ToDo
         }
 
 
