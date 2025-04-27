@@ -57,25 +57,18 @@
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="80*"/>
             </Grid.ColumnDefinitions>
-            <!--<ListView ItemsSource="{Binding BuildDefinitionList}" SelectedItem="{Binding SelectedBuildDefinitionItem}"
-                      SelectionChanged="ListView_SelectionChanged">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel>
-                            <TextBlock Text="{Binding Path=Name}"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>-->
             <utility:ExtendedTreeView ItemsSource="{Binding BuildDefinitionList}" SelectedItem_="{Binding SelectedBuildDefinitionItem, Mode=TwoWay}">
                 <utility:ExtendedTreeView.ItemTemplate>
                     <HierarchicalDataTemplate ItemsSource="{Binding Path=Children}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Path=Name}"/>
-                            <TextBlock Text=" [ Id:"/>
-                            <TextBlock Text="{Binding Path=Id}"/>
-                            <TextBlock Text=" ]"/>
-                        </StackPanel>
+                        <TextBlock>
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0}: {1} [Id: {2}]">
+                                    <Binding Path="Path"/>
+                                    <Binding Path="Name"/>
+                                    <Binding Path="Id"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
                     </HierarchicalDataTemplate>
                 </utility:ExtendedTreeView.ItemTemplate>
             </utility:ExtendedTreeView>

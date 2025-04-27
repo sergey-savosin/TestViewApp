@@ -8,7 +8,7 @@ namespace TestViewApp.View
     /// </summary>
     public partial class MainWindow : Window
     {
-        private MainWindowViewModel m_ViewModel;
+        private MainWindowViewModel m_ViewModel = null!;
 
         public MainWindow()
         {

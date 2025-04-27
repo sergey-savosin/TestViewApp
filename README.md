@@ -2,7 +2,7 @@
 Утилита для просмотра результатов сборки и тестов Azure.
 
 ## Запуск
-Для запуска необходимо заполнить файл SpecialAppSettings.config с таким содержимым:
+Для запуска необходимо добавить файл SpecialAppSettings.config с таким содержимым:
 ```
 <?xml version="1.0" encoding="utf-8" ?>
 <appSettings>

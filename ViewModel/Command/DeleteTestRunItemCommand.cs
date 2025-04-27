@@ -13,7 +13,8 @@ namespace TestViewApp.ViewModel.Command
 
         public bool CanExecute(object? parameter)
         {
-            return (_mainWindowViewModel.SelectedTestRunItem != null);
+            return true;
+            //return (_mainWindowViewModel.SelectedTestRunItem != null);
         }
 
         public event EventHandler? CanExecuteChanged
@@ -24,8 +25,8 @@ namespace TestViewApp.ViewModel.Command
 
         public void Execute(object? parameter)
         {
-            var selectedItem = _mainWindowViewModel.SelectedTestRunItem;
-            _mainWindowViewModel.TestRunList.Remove(selectedItem);
+            //var selectedItem = _mainWindowViewModel.SelectedTestRunItem;
+            //_mainWindowViewModel.TestRunList.Remove(selectedItem);
         }
     }
 }

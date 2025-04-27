@@ -18,6 +18,9 @@ namespace TestViewApp.Repository.Azure
 
         public AzureBuilds(string baseUrl)
         {
+            if (string.IsNullOrWhiteSpace(baseUrl))
+                throw new ArgumentNullException(nameof(baseUrl));
+
             _baseUrl = baseUrl;
 
             authHandler = new HttpClientHandler()
@@ -28,7 +31,7 @@ namespace TestViewApp.Repository.Azure
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
-            // httpClient.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
         }
 
         public async Task<Build[]> GetListData(int[] buildIds)

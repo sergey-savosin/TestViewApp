@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 
 namespace TestViewApp.ViewModel.Command
 {
@@ -25,8 +20,6 @@ namespace TestViewApp.ViewModel.Command
 
         public void Execute(object? parameter)
         {
-            int deltaInHours = _mainWindowViewModel.DeltaInHours;
-            //_mainWindowViewModel.LoadRunItems(deltaInHours).ConfigureAwait(false);
             _mainWindowViewModel.LoadBuildDefinitions().ConfigureAwait(false);
         }
     }

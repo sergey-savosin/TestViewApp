@@ -17,6 +17,11 @@ namespace TestViewApp.Repository.Azure
 
         public AzureBuildDefinitions(string baseUrl)
         {
+            if (string.IsNullOrEmpty(baseUrl))
+            {
+                throw new ArgumentNullException(nameof(baseUrl));
+            }
+
             _baseUrl = baseUrl;
             authHandler = new HttpClientHandler()
             {

@@ -16,63 +16,23 @@ namespace TestViewApp.ViewModel
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private ObservableCollection<TestRunItem> p_TestRunList;
-        private int p_ItemCount;
-        private ObservableCollection<BuildDefinitionItem> p_BuildDefinitionList;
-        private ObservableCollection<Build> p_BuildList;
-        private int p_DeltaInHours;
+        private ObservableCollection<BuildDefinitionItem> p_BuildDefinitionList = null!;
+        private ObservableCollection<Build> p_BuildList = null!;
         private bool p_LoadInProgress;
-        private BuildDefinitionItem selectedBuildDefinitionItem;
-        private Build selectedBuildItem;
+        private BuildDefinitionItem selectedBuildDefinitionItem = null!;
+        private Build selectedBuildItem = null!;
 
-        private const string constKormBDeploysPath = @"\Korm B\Deploy\SaleListManagement";
+        //private const string constKormBDeploysPath = @"\Korm B\Deploy\SaleListManagement";
+        private const string constKormBDeploysPath = @"\Korm B\Tests\*";
 
         public MainWindowViewModel()
         {
-            Initialize();
+            InitializeAsync().ConfigureAwait(false);
         }
 
         public ICommand DeleteTestRunItem { get; set; }
 
         public ICommand ReloadRunItems { get; set; }
-
-        public ObservableCollection<TestRunItem> TestRunList
-        {
-            get { return p_TestRunList; }
-            set
-            {
-                p_TestRunList = value;
-                RaisePropertyChangedEvent(nameof(TestRunList));
-                OnTestItemListChanged();
-            }
-        }
-
-        public ICollectionView TestRunFilteredList
-        {
-            get
-            {
-                var source = CollectionViewSource.GetDefaultView(TestRunList);
-                source.Filter = p => Filter((TestRunItem)p);
-                return source;
-            }
-        }
-
-        public TestRunItem SelectedTestRunItem { get; set; }
-
-        private bool Filter(TestRunItem p)
-        {
-            if (p == null)
-                return false;
-
-            var selectedBuildName = SelectedBuildDefinitionItem?.Name ?? string.Empty;
-            if (selectedBuildName == string.Empty || selectedBuildName == "(all)")
-                return true;
-            
-            if (p.BuildDefinitionName == selectedBuildName)
-                return true;
-            
-            return false;
-        }
 
         public ObservableCollection<BuildDefinitionItem> BuildDefinitionList
         {
@@ -89,7 +49,8 @@ namespace TestViewApp.ViewModel
             {
                 selectedBuildDefinitionItem = value;
                 // RaisePropertyChangedEvent("SelectedBuildDefinitionItem");
-                OnSelectedBuildDefinitionItemChanged();
+
+                OnSelectedBuildDefinitionItemChanged().ConfigureAwait(false);
             }
         }
 
@@ -109,16 +70,6 @@ namespace TestViewApp.ViewModel
             }
         }
 
-        public int DeltaInHours
-        {
-            get { return p_DeltaInHours; }
-            set
-            {
-                p_DeltaInHours = value;
-                RaisePropertyChangedEvent(nameof(DeltaInHours));
-            }
-        }
-
         public bool LoadInProgress
         {
             get { return p_LoadInProgress; }
@@ -127,29 +78,6 @@ namespace TestViewApp.ViewModel
                 p_LoadInProgress = value;
                 RaisePropertyChangedEvent(nameof(LoadInProgress));
             }
-        }
-
-        public int TestRunItemCount
-        {
-            get { return p_ItemCount; }
-            set
-            {
-                p_ItemCount = value;
-                RaisePropertyChangedEvent(nameof(TestRunItemCount));
-            }
-        }
-
-        private void OnTestItemListChanged()
-        {
-            TestRunItemCount = TestRunList.Count;
-
-            List<BuildDefinitionItem> bd = TestRunList
-                .Select(t => new BuildDefinitionItem() { Name = t.BuildDefinitionName ?? "-" })
-                .DistinctBy(t => t.Name)
-                .ToList();
-            //BuildDefinitionList.Clear();
-            //BuildDefinitionList.Add(new BuildDefinitionItem() { Name = "(all)" });
-            //BuildDefinitionList.AddRange(bd);
         }
 
         private async Task OnSelectedBuildDefinitionItemChanged()
@@ -166,39 +94,15 @@ namespace TestViewApp.ViewModel
             //ToDo
         }
 
-        private async void Initialize()
+        private async Task InitializeAsync()
         {
             DeleteTestRunItem = new DeleteTestRunItemCommand(this);
             ReloadRunItems = new ReloadRunItemsCommand(this);
 
             p_BuildDefinitionList = new ObservableCollection<BuildDefinitionItem>();
             p_BuildList = new ObservableCollection<Build>();
-            p_TestRunList = new ObservableCollection<TestRunItem>();
-            //p_TestRunList.CollectionChanged += OnTestRunList_CollectionChanged;
-            DeltaInHours = 12;
 
-            //await LoadRunItems(DeltaInHours);
             await LoadBuildDefinitions();
-        }
-
-        private void OnTestRunList_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            OnTestItemListChanged();
-        }
-
-        public async Task LoadRunItems(int deltaInHours)
-        {
-            LoadInProgress = true;
-            string azureUrlBase = ConfigurationManager.AppSettings["AzureUrlBase"] ?? throw new Exception("AzureUrlBase is not found in AppSettings");
-            var atr = new AzureTestInformation(azureUrlBase);
-
-            var testInfoList = await atr.GetTestList(deltaInHours);
-            var res = new ObservableCollection<TestRunItem>(testInfoList.Where(t => !t.StageName?.StartsWith("__default") ?? true).ToArray());
-
-            TestRunList.Clear();
-            TestRunList.AddRange(res);
-
-            LoadInProgress = false;
         }
 
         public async Task LoadBuildDefinitions()
@@ -207,6 +111,7 @@ namespace TestViewApp.ViewModel
             string azureUrlBase = ConfigurationManager.AppSettings["AzureUrlBase"] ?? throw new Exception("AzureUrlBase is not found in AppSettings");
             var azureBuildDefinition = new AzureBuildDefinitions(azureUrlBase);
             var buildDefinitionListProcessor = new BuildDefinitionListProcessor(azureBuildDefinition);
+
             var buildDefArray = await buildDefinitionListProcessor.GetListAsync(constKormBDeploysPath);
             IEnumerable<BuildDefinitionItem> buildDefUIArray = MakeBuildDefTree(buildDefArray);
             BuildDefinitionList.Clear();
