@@ -1,0 +1,10 @@
+TestViewApp
+===========
+
+DockPanel: TextBlock, Button, Button
+------------------------------------
+Build      |BuildListGrid
+Definition |------------------------
+List       |TestRunListGrid
+------------------------------------
+StackPanel: TextBlocks

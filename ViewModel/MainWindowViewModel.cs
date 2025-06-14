@@ -4,7 +4,6 @@ using Microsoft.VisualStudio.Services.Common;
 using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Windows.Input;
-using TestViewApp.BusinessLogic;
 using TestViewApp.Domain;
 using TestViewApp.Repository.Azure;
 using TestViewApp.UtilityClasses;
@@ -24,6 +23,7 @@ namespace TestViewApp.ViewModel
 
         //private const string constKormBDeploysPath = @"\Korm B\Deploy\SaleListManagement";
         private const string constKormBDeploysPath = @"\Korm B\Tests\*";
+        //private const string constKormBDeploysPath = @"\Korm B\Deploy\*";
 
         public MainWindowViewModel()
         {
@@ -106,7 +106,6 @@ namespace TestViewApp.ViewModel
 
         private async Task OnSelectedBuildItemChanged()
         {
-            //ToDo
             var build = SelectedBuildItem;
             if (build != null)
             {
@@ -135,25 +134,24 @@ namespace TestViewApp.ViewModel
         public async Task LoadBuildDefinitions()
         {
             LoadInProgress = true;
+
             string azureUrlBase = ConfigurationManager.AppSettings["AzureUrlBase"] ?? throw new Exception("AzureUrlBase is not found in AppSettings");
             var azureBuildDefinition = new AzureBuildDefinitions(azureUrlBase);
-            var buildDefinitionListProcessor = new BuildDefinitionListProcessor(azureBuildDefinition);
-
-            var buildDefArray = await buildDefinitionListProcessor.GetListAsync(constKormBDeploysPath);
-            IEnumerable<BuildDefinitionItem> buildDefUIArray = MakeBuildDefTree(buildDefArray);
+            var definitionArray = await azureBuildDefinition.GetListData(constKormBDeploysPath);
+            IEnumerable<BuildDefinitionItem> buildDefUIArray = MakeBuildDefTree(definitionArray);
             BuildDefinitionList.Clear();
             BuildDefinitionList.AddRange(buildDefUIArray);
 
             LoadInProgress = false;
         }
 
-        private async Task LoadBuildList(int id)
+        private async Task LoadBuildList(int buildDefinitionId)
         {
             LoadInProgress = true;
+
             string azureUrlBase = ConfigurationManager.AppSettings["AzureUrlBase"] ?? throw new Exception("AzureUrlBase is not found in AppSettings");
             var azureBuild = new AzureBuilds(azureUrlBase);
-            var buildListProcessor = new BuildListProcessor(azureBuild);
-            var buildArray = await buildListProcessor.GetListAsync(id);
+            var buildArray = await azureBuild.GetListDataByBuildDefinition(buildDefinitionId);
             BuildList.Clear();
             BuildList.AddRange(buildArray);
 
@@ -163,8 +161,14 @@ namespace TestViewApp.ViewModel
         private async Task LoadTestRunList(Uri uri)
         {
             LoadInProgress = true;
+
             string azureUrlBase = ConfigurationManager.AppSettings["AzureUrlBase"] ?? throw new Exception("AzureUrlBase is not found in AppSettings");
-            //ToDo
+            var azureTestRuns = new AzureTestRuns(azureUrlBase);
+            var res = await azureTestRuns.GetListDataByBuildUri(uri.ToString());
+            TestRunList.Clear();
+            TestRunList.AddRange(res);
+
+            LoadInProgress = false;
         }
 
 

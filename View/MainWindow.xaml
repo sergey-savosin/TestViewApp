@@ -106,24 +106,26 @@
                 <GridSplitter Grid.Row="1" Height="5" VerticalAlignment="Stretch" />
                 
                 <DataGrid x:Name="TestRunListGrid"
-                ItemsSource="{Binding TestRunFilteredList}"
+                ItemsSource="{Binding TestRunList}"
                 SelectedItem="{Binding SelectedTestRunItem}"
                 AutoGenerateColumns="False"
                 Grid.Row="2"
                 DataContextChanged="OnMainGrid_DataContextChanged"
                 >
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="TestRunId" Width="10" Binding="{Binding TestRunId}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="TestRunName" Width="*" Binding="{Binding TestRunName}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="PipelineStage" Width="80" Binding="{Binding StageName}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="BuildDefinition" Width="*" Binding="{Binding BuildDefinitionName}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="StartedDate UTC" Width="130" Binding="{Binding StartedDate, StringFormat=\{0:dd-MMM HH:mm:ss\}}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="Duration (sec)" Width="90" Binding="{Binding DurationInSeconds}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="Total" Width="50" Binding="{Binding TotalTests}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="Passed" Width="50" Binding="{Binding PassedTests}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="Unanalyzed" Width="50" Binding="{Binding UnanalyzedTests}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="BuildReason" Width="80" Binding="{Binding BuildReason}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="RequestedBy" Width="80" Binding="{Binding BuildRequestedByInfo}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="StartedDate" Binding="{Binding StartedDate}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="CompletedDate" Binding="{Binding CompletedDate}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="StageName" Binding="{Binding PipelineReference.StageReference.StageName}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="State" Binding="{Binding State}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="TotalTests" Binding="{Binding TotalTests}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="PassedTests" Binding="{Binding PassedTests}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="UnanalyzedTests" Binding="{Binding UnanalyzedTests}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Id" Binding="{Binding Id}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
+                        <DataGridCheckBoxColumn Header="IsAutomated" Binding="{Binding IsAutomated}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="IncompleteTests" Binding="{Binding IncompleteTests}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="NotApplicableTests" Binding="{Binding NotApplicableTests}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Substate" Binding="{Binding Substate}" IsReadOnly="True"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>

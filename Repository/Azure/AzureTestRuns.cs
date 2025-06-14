@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.TeamFoundation.Build.WebApi;
+using Microsoft.TeamFoundation.TestManagement.WebApi;
+using Newtonsoft.Json;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using TestViewApp.Repository.Azure.DataModel;
@@ -7,18 +9,17 @@ namespace TestViewApp.Repository.Azure
 {
     public class AzureTestRuns
     {
-        const string msContinuationHeader = "x-ms-continuationtoken";
         readonly string _baseUrl;
-        const string _testRunsUrlTemplate = @"_apis/test/runs?minLastUpdatedDate={0}&maxLastUpdatedDate={1}&api-version=6.0";
-        const string _testRunsUrlTemplateWithContinuationToken = @"_apis/test/runs?minLastUpdatedDate={0}&maxLastUpdatedDate={1}&continuationToken={2}&api-version=6.0";
+        const string _testRunsUrlTemplateByUri = @"_apis/test/runs?buildUri={0}&$top={1}&includeRunDetails=true&api-version=7.1";
 
-        HttpClientHandler authHandler;
-        HttpClient httpClient;
-        string _continuationToken;
-        bool canReadMoreData = true; // при первом запуске всегда можем читать данные
+        readonly HttpClientHandler authHandler;
+        readonly HttpClient httpClient;
 
         public AzureTestRuns(string baseUrl)
         {
+            if (string.IsNullOrWhiteSpace(baseUrl))
+                throw new ArgumentNullException(nameof(baseUrl));
+
             _baseUrl = baseUrl;
 
             authHandler = new HttpClientHandler()
@@ -29,60 +30,31 @@ namespace TestViewApp.Repository.Azure
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
-            // httpClient.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
-
-            _continuationToken = string.Empty;
+            httpClient.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
         }
 
-        public void Reset()
+        public async Task<TestRun[]> GetListDataByBuildUri(string buildUri)
         {
-            canReadMoreData = true;
-            _continuationToken = string.Empty;
-        }
-
-        public async Task<TestRunList> GetNextData(DateTime dateStart, DateTime dateStop)
-        {
-            if (!canReadMoreData)
-                return new TestRunList();
-
-            string url = prepareTestRunsUrl(dateStart, dateStop, _continuationToken);
-            Console.WriteLine(url);
+            string url = prepareTestRunsListByBuildUri(buildUri);
 
             HttpResponseMessage message = await httpClient.GetAsync(url);
             if (!message.IsSuccessStatusCode)
             {
                 throw new Exception(message.ToString());
             }
+
             var responseStr = await message.Content.ReadAsStringAsync();
 
-            if (message.Headers.Contains(msContinuationHeader))
-            {
-                _continuationToken = message.Headers.GetValues(msContinuationHeader).First();
-                Console.WriteLine(_continuationToken);
-                canReadMoreData = true;
-            }
-            else
-            {
-                _continuationToken = string.Empty;
-                canReadMoreData = false;
-            }
+            var bs = JsonConvert.DeserializeObject<TestRunList>(responseStr);
 
-            TestRunList? testRuns = JsonConvert.DeserializeObject<TestRunList>(responseStr);
-
-            return testRuns ?? new TestRunList();
+            return bs?.value?.ToArray<TestRun>() ?? Array.Empty<TestRun>();
         }
 
-        private string prepareTestRunsUrl(DateTime dateStart, DateTime dateStop, string _continuationToken)
+        private string prepareTestRunsListByBuildUri(string buildUri)
         {
-            string sDateStart = dateStart.ToString("yyyy-MM-ddTHH:mm:ss");
-            string sDateEnd = dateStop.ToString("yyyy-MM-ddTHH:mm:ss");
-
-            if (string.IsNullOrEmpty(_continuationToken))
-            {
-                return string.Concat(_baseUrl, string.Format(_testRunsUrlTemplate, sDateStart, sDateEnd));
-            }
-
-            return string.Concat(_baseUrl, string.Format(_testRunsUrlTemplateWithContinuationToken, sDateStart, sDateEnd, _continuationToken));
+            const int topN = 100;
+            return string.Concat(_baseUrl, string.Format(_testRunsUrlTemplateByUri, buildUri, topN));
         }
+
     }
 }
