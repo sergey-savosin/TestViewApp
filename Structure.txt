@@ -6,5 +6,7 @@ DockPanel: TextBlock, Button, Button
 Build      |BuildListGrid
 Definition |------------------------
 List       |TestRunListGrid
+           |------------------------
+           |TestCaseResultListGrid
 ------------------------------------
 StackPanel: TextBlocks

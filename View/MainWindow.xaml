@@ -77,9 +77,11 @@
 
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="40*"/>
+                    <RowDefinition Height="30*"/>
                     <RowDefinition Height="5"/>
-                    <RowDefinition Height="60*"/>
+                    <RowDefinition Height="20*"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="50*"/>
                 </Grid.RowDefinitions>
                 <DataGrid x:Name="BuildListGrid"
                           ItemsSource="{Binding BuildList}"
@@ -128,6 +130,30 @@
                         <DataGridTextColumn Header="Substate" Binding="{Binding Substate}" IsReadOnly="True"/>
                     </DataGrid.Columns>
                 </DataGrid>
+
+                <GridSplitter Grid.Row="3" Height="5" VerticalAlignment="Stretch" />
+
+                <StackPanel Grid.Row="4">
+                    <DockPanel LastChildFill="False" DockPanel.Dock="Top" Margin="5,0,5,0">
+                        <CheckBox Margin="0,5,5,5">Show only failed</CheckBox>
+                        <TextBlock DockPanel.Dock="Right" Margin="0,5,5,5">0</TextBlock>
+                        <TextBlock DockPanel.Dock="Right" Margin="0,5,5,5">Loaded:</TextBlock>
+                    </DockPanel>
+                    <DataGrid x:Name="TestCaseResultListGrid"
+                          ItemsSource="{Binding TestCaseResultList}"
+                          SelectedItem="{Binding SelectedTestCaseResultItem}"
+                          AutoGenerateColumns="False"
+                          
+                          DataContextChanged="OnMainGrid_DataContextChanged"
+                          >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="TestCaseTitle" Binding="{Binding TestCaseTitle}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Outcome" Binding="{Binding Outcome}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="DurationInMs" Binding="{Binding DurationInMs}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="AutomatedTestName" Binding="{Binding AutomatedTestName}" IsReadOnly="True"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+                </StackPanel>
             </Grid>
         </Grid>
     </DockPanel>

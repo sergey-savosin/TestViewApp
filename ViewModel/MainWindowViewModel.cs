@@ -6,6 +6,7 @@ using System.Configuration;
 using System.Windows.Input;
 using TestViewApp.Domain;
 using TestViewApp.Repository.Azure;
+using TestViewApp.Repository.Azure.DataModel;
 using TestViewApp.UtilityClasses;
 using TestViewApp.ViewModel.Command;
 
@@ -16,10 +17,12 @@ namespace TestViewApp.ViewModel
         private ObservableCollection<BuildDefinitionItem> p_BuildDefinitionList = null!;
         private ObservableCollection<Build> p_BuildList = null!;
         private ObservableCollection<TestRun> p_TestRunList = null!;
+        private ObservableCollection<CustomTestCaseResult> p_TestCaseResultList = null!;
         private bool p_LoadInProgress;
         private BuildDefinitionItem selectedBuildDefinitionItem = null!;
         private Build selectedBuildItem = null!;
         private TestRun selectedTestRunItem = null!;
+        private CustomTestCaseResult selectedTestCaseResultItem = null!;
 
         //private const string constKormBDeploysPath = @"\Korm B\Deploy\SaleListManagement";
         private const string constKormBDeploysPath = @"\Korm B\Tests\*";
@@ -81,7 +84,23 @@ namespace TestViewApp.ViewModel
             set
             {
                 selectedTestRunItem = value;
-                OnSelectedTestRunItemChanged();
+                OnSelectedTestRunItemChanged().ConfigureAwait(false);
+            }
+        }
+
+        public ObservableCollection<CustomTestCaseResult> TestCaseResultList
+        {
+            get { return p_TestCaseResultList; }
+            set { p_TestCaseResultList = value; }
+        }
+
+        public CustomTestCaseResult SelectedTestCaseResultItem
+        {
+            get { return selectedTestCaseResultItem; }
+            set
+            {
+                selectedTestCaseResultItem = value;
+                OnSelectedTestCaseResultItemChanged();
             }
         }
 
@@ -113,9 +132,17 @@ namespace TestViewApp.ViewModel
             }
         }
 
-        private void OnSelectedTestRunItemChanged()
+        private async Task OnSelectedTestRunItemChanged()
         {
-            //ToDo
+            var testRun = SelectedTestRunItem;
+            if (testRun != null)
+            {
+                await LoadTestCaseResultList(testRun.Id).ConfigureAwait(false);
+            }
+        }
+
+        private void OnSelectedTestCaseResultItemChanged()
+        {
             throw new NotImplementedException();
         }
 
@@ -127,6 +154,7 @@ namespace TestViewApp.ViewModel
             p_BuildDefinitionList = new ObservableCollection<BuildDefinitionItem>();
             p_BuildList = new ObservableCollection<Build>();
             p_TestRunList = new ObservableCollection<TestRun>();
+            p_TestCaseResultList = new ObservableCollection<CustomTestCaseResult>();
 
             await LoadBuildDefinitions();
         }
@@ -135,8 +163,7 @@ namespace TestViewApp.ViewModel
         {
             LoadInProgress = true;
 
-            string azureUrlBase = ConfigurationManager.AppSettings["AzureUrlBase"] ?? throw new Exception("AzureUrlBase is not found in AppSettings");
-            var azureBuildDefinition = new AzureBuildDefinitions(azureUrlBase);
+            var azureBuildDefinition = new AzureBuildDefinitions(GetAzureBaseUrl());
             var definitionArray = await azureBuildDefinition.GetListData(constKormBDeploysPath);
             IEnumerable<BuildDefinitionItem> buildDefUIArray = MakeBuildDefTree(definitionArray);
             BuildDefinitionList.Clear();
@@ -149,8 +176,7 @@ namespace TestViewApp.ViewModel
         {
             LoadInProgress = true;
 
-            string azureUrlBase = ConfigurationManager.AppSettings["AzureUrlBase"] ?? throw new Exception("AzureUrlBase is not found in AppSettings");
-            var azureBuild = new AzureBuilds(azureUrlBase);
+            var azureBuild = new AzureBuilds(GetAzureBaseUrl());
             var buildArray = await azureBuild.GetListDataByBuildDefinition(buildDefinitionId);
             BuildList.Clear();
             BuildList.AddRange(buildArray);
@@ -161,12 +187,22 @@ namespace TestViewApp.ViewModel
         private async Task LoadTestRunList(Uri uri)
         {
             LoadInProgress = true;
-
-            string azureUrlBase = ConfigurationManager.AppSettings["AzureUrlBase"] ?? throw new Exception("AzureUrlBase is not found in AppSettings");
-            var azureTestRuns = new AzureTestRuns(azureUrlBase);
+            var azureTestRuns = new AzureTestRuns(GetAzureBaseUrl());
             var res = await azureTestRuns.GetListDataByBuildUri(uri.ToString());
             TestRunList.Clear();
             TestRunList.AddRange(res);
+
+            LoadInProgress = false;
+        }
+
+        private async Task LoadTestCaseResultList(int runId)
+        {
+            LoadInProgress = true;
+
+            var azureTestCaseResults = new AzureTestCaseResults(GetAzureBaseUrl());
+            var res = await azureTestCaseResults.GetListDataByRunId(runId, 0, 100, "");
+            TestCaseResultList.Clear();
+            TestCaseResultList.AddRange(res);
 
             LoadInProgress = false;
         }
@@ -184,5 +220,11 @@ namespace TestViewApp.ViewModel
                 .OrderBy(t => t.Path)
                 .ThenBy(t => t.Name);
         }
+
+        private static string GetAzureBaseUrl()
+        {
+            return ConfigurationManager.AppSettings["AzureUrlBase"] ?? throw new Exception("AzureUrlBase is not found in AppSettings");
+        }
+
     }
 }

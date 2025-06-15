@@ -1,20 +1,19 @@
-﻿using Microsoft.TeamFoundation.TestManagement.WebApi;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using TestViewApp.Repository.Azure.DataModel;
 
 namespace TestViewApp.Repository.Azure
 {
-    public class AzureTestRuns
+    public class AzureTestCaseResults
     {
         readonly string _baseUrl;
-        const string _testRunsUrlTemplateByUri = @"_apis/test/runs?buildUri={0}&$top={1}&includeRunDetails=true&api-version=7.1";
+        const string _testRunsUrlTemplateByUri = @"_apis/test/runs/{0}/results?$skip={1}&$top={2}&outcomes={3}&api-version=7.1";
 
         readonly HttpClientHandler authHandler;
         readonly HttpClient httpClient;
 
-        public AzureTestRuns(string baseUrl)
+        public AzureTestCaseResults(string baseUrl)
         {
             if (string.IsNullOrWhiteSpace(baseUrl))
                 throw new ArgumentNullException(nameof(baseUrl));
@@ -32,9 +31,9 @@ namespace TestViewApp.Repository.Azure
             httpClient.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
         }
 
-        public async Task<TestRun[]> GetListDataByBuildUri(string buildUri)
+        public async Task<CustomTestCaseResult[]> GetListDataByRunId(int runId, int skip, int top, string outcomes)
         {
-            string url = prepareTestRunsListByBuildUri(buildUri);
+            string url = prepareTestCaseResultsListByRunId(runId, skip, top, outcomes);
 
             HttpResponseMessage message = await httpClient.GetAsync(url);
             if (!message.IsSuccessStatusCode)
@@ -42,18 +41,21 @@ namespace TestViewApp.Repository.Azure
                 throw new Exception(message.ToString());
             }
 
-            var responseStr = await message.Content.ReadAsStringAsync();
-
-            var bs = JsonConvert.DeserializeObject<TestRunList>(responseStr);
-
-            return bs?.value?.ToArray<TestRun>() ?? Array.Empty<TestRun>();
+            try
+            {
+                var responseStr = await message.Content.ReadAsStringAsync();
+                var bs = JsonConvert.DeserializeObject<TestCaseResultList>(responseStr);
+                return bs?.value?.ToArray<CustomTestCaseResult>() ?? Array.Empty<CustomTestCaseResult>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
         }
 
-        private string prepareTestRunsListByBuildUri(string buildUri)
+        private string prepareTestCaseResultsListByRunId(int runId, int skip, int top, string outcomes)
         {
-            const int topN = 100;
-            return string.Concat(_baseUrl, string.Format(_testRunsUrlTemplateByUri, buildUri, topN));
+            return string.Concat(_baseUrl, string.Format(_testRunsUrlTemplateByUri, runId, skip, top, outcomes));
         }
-
     }
 }
