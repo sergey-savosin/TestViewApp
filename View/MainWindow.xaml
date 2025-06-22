@@ -44,12 +44,8 @@
             <TextBox x:Name="DeltaInHours" Text="{Binding DeltaInHours}" Width="40" DockPanel.Dock="Right" Margin="0,5,5,5"/>
         </DockPanel>
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
-            <TextBlock Text="Delta (hours): " TextWrapping="NoWrap"/>
-            <TextBlock Text="{Binding DeltaInHours}" TextWrapping="Wrap"/>
-            <TextBlock Text=". Loading: " TextWrapping="NoWrap"/>
+            <TextBlock Text="Loading: " TextWrapping="NoWrap"/>
             <TextBlock Text="{Binding LoadInProgress}" TextWrapping="Wrap"/>
-            <TextBlock Text=". Number of items: " TextWrapping="NoWrap"/>
-            <TextBlock Text="{Binding TestRunItemCount}" TextWrapping="Wrap"/>
         </StackPanel>
         <Grid DockPanel.Dock="Top">
             <Grid.ColumnDefinitions>
@@ -133,12 +129,13 @@
 
                 <GridSplitter Grid.Row="3" Height="5" VerticalAlignment="Stretch" />
 
-                <StackPanel Grid.Row="4">
+                <DockPanel Grid.Row="4">
                     <DockPanel LastChildFill="False" DockPanel.Dock="Top" Margin="5,0,5,0">
-                        <CheckBox Margin="0,5,5,5">Show only failed</CheckBox>
-                        <TextBlock DockPanel.Dock="Right" Margin="0,5,5,5">0</TextBlock>
+                        <CheckBox IsChecked="{Binding ShowOnlyFailedTestCases}" Margin="0,5,5,5">Show only failed</CheckBox>
+                        <TextBlock Text="{Binding TestCasesCount}" DockPanel.Dock="Right" Margin="0,5,5,5"/>
                         <TextBlock DockPanel.Dock="Right" Margin="0,5,5,5">Loaded:</TextBlock>
                     </DockPanel>
+                    
                     <DataGrid x:Name="TestCaseResultListGrid"
                           ItemsSource="{Binding TestCaseResultList}"
                           SelectedItem="{Binding SelectedTestCaseResultItem}"
@@ -150,10 +147,10 @@
                         <DataGridTextColumn Header="TestCaseTitle" Binding="{Binding TestCaseTitle}" IsReadOnly="True"/>
                         <DataGridTextColumn Header="Outcome" Binding="{Binding Outcome}" IsReadOnly="True"/>
                         <DataGridTextColumn Header="DurationInMs" Binding="{Binding DurationInMs}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="AutomatedTestName" Binding="{Binding AutomatedTestName}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="ErrorMessage" Binding="{Binding ErrorMessage}" IsReadOnly="True"/>
                     </DataGrid.Columns>
                 </DataGrid>
-                </StackPanel>
+                </DockPanel>
             </Grid>
         </Grid>
     </DockPanel>

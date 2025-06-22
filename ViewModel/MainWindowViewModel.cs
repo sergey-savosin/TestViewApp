@@ -19,13 +19,16 @@ namespace TestViewApp.ViewModel
         private ObservableCollection<TestRun> p_TestRunList = null!;
         private ObservableCollection<CustomTestCaseResult> p_TestCaseResultList = null!;
         private bool p_LoadInProgress;
+        private bool p_ShowOnlyFailedTestCases;
+        private int p_TestCasesCount = 0;
         private BuildDefinitionItem selectedBuildDefinitionItem = null!;
         private Build selectedBuildItem = null!;
         private TestRun selectedTestRunItem = null!;
         private CustomTestCaseResult selectedTestCaseResultItem = null!;
 
         //private const string constKormBDeploysPath = @"\Korm B\Deploy\SaleListManagement";
-        private const string constKormBDeploysPath = @"\Korm B\Tests\*";
+        //private const string constKormBDeploysPath = @"\Korm B\Tests\*";
+        private const string constKormBDeploysPath = @"\Korm B\**\**";
         //private const string constKormBDeploysPath = @"\Korm B\Deploy\*";
 
         public MainWindowViewModel()
@@ -114,6 +117,25 @@ namespace TestViewApp.ViewModel
             }
         }
 
+        public bool ShowOnlyFailedTestCases
+        {
+            get { return p_ShowOnlyFailedTestCases;}
+            set {
+                p_ShowOnlyFailedTestCases = value;
+                OnSelectedTestRunItemChanged().ConfigureAwait(false);
+            }
+        }
+
+        public int TestCasesCount
+        {
+            get { return p_TestCasesCount; }
+            set
+            {
+                p_TestCasesCount = value;
+                RaisePropertyChangedEvent(nameof(TestCasesCount));
+            }
+        }
+
         private async Task OnSelectedBuildDefinitionItemChanged()
         {
             var buildDefinition = SelectedBuildDefinitionItem;
@@ -137,7 +159,9 @@ namespace TestViewApp.ViewModel
             var testRun = SelectedTestRunItem;
             if (testRun != null)
             {
-                await LoadTestCaseResultList(testRun.Id).ConfigureAwait(false);
+                string outcomesFilter = ShowOnlyFailedTestCases == true ? "failed" : "";
+                await LoadTestCaseResultList(testRun.Id, outcomesFilter).ConfigureAwait(false);
+                TestCasesCount = TestCaseResultList.Count;
             }
         }
 
@@ -195,12 +219,12 @@ namespace TestViewApp.ViewModel
             LoadInProgress = false;
         }
 
-        private async Task LoadTestCaseResultList(int runId)
+        private async Task LoadTestCaseResultList(int runId, string outcomesFilter)
         {
             LoadInProgress = true;
 
             var azureTestCaseResults = new AzureTestCaseResults(GetAzureBaseUrl());
-            var res = await azureTestCaseResults.GetListDataByRunId(runId, 0, 100, "");
+            var res = await azureTestCaseResults.GetListDataByRunId(runId, 0, 100, outcomesFilter);
             TestCaseResultList.Clear();
             TestCaseResultList.AddRange(res);
 

@@ -10,5 +10,7 @@
         public string TestCaseTitle { get; set; }
         public int TestCaseReferenceId { get; set; }
         public string AutomatedTestName { get; set; }
+        public string ErrorMessage { get; set; }
+        public string StackTrace { get; set; }
     }
 }
