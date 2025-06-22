@@ -4,8 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TestViewApp"
+        xmlns:views="clr-namespace:TestViewApp.View"
         xmlns:domain="clr-namespace:TestViewApp.Domain"
-        xmlns:utility="clr-namespace:TestViewApp.UtilityClasses"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
@@ -27,6 +27,12 @@
             <Setter Property="VerticalGridLinesBrush" Value="#FFD3D0" />
             <Setter Property="RowHeaderWidth" Value="0" />
         </Style>
+
+        <views:TabTemplateSelector x:Key="TabTemplateSelector"/>
+        <DataTemplate x:Key="BuildDefinitionTestListView">
+            <views:BuildDefinitionTestListView/>
+        </DataTemplate>
+
     </Window.Resources>
     <DockPanel>
         <DockPanel LastChildFill="False" DockPanel.Dock="Top" Margin="5,0,5,0">
@@ -47,111 +53,29 @@
             <TextBlock Text="Loading: " TextWrapping="NoWrap"/>
             <TextBlock Text="{Binding LoadInProgress}" TextWrapping="Wrap"/>
         </StackPanel>
-        <Grid DockPanel.Dock="Top">
+        <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="20*"/>
-                <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="80*"/>
+                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <utility:ExtendedTreeView ItemsSource="{Binding BuildDefinitionList}" SelectedItem_="{Binding SelectedBuildDefinitionItem, Mode=TwoWay}">
-                <utility:ExtendedTreeView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Path=Children}">
-                        <TextBlock>
-                            <TextBlock.Text>
-                                <MultiBinding StringFormat="{}{0}: {1} [Id: {2}]">
-                                    <Binding Path="Path"/>
-                                    <Binding Path="Name"/>
-                                    <Binding Path="Id"/>
-                                </MultiBinding>
-                            </TextBlock.Text>
-                        </TextBlock>
-                    </HierarchicalDataTemplate>
-                </utility:ExtendedTreeView.ItemTemplate>
-            </utility:ExtendedTreeView>
-            
-            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
 
-            <Grid Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="30*"/>
-                    <RowDefinition Height="5"/>
-                    <RowDefinition Height="20*"/>
-                    <RowDefinition Height="5"/>
-                    <RowDefinition Height="50*"/>
-                </Grid.RowDefinitions>
-                <DataGrid x:Name="BuildListGrid"
-                          ItemsSource="{Binding BuildList}"
-                          SelectedItem="{Binding SelectedBuildItem}"
-                          AutoGenerateColumns="False"
-                          Grid.Row="0"
-                          DataContextChanged="OnMainGrid_DataContextChanged">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Id" Width="60" Binding="{Binding Id}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="BuildNumber" Width="400" Binding="{Binding BuildNumber}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="Status" Width="80" Binding="{Binding Status}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="Result" Width="80" Binding="{Binding Result}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="QueueTime" Width="100" Binding="{Binding QueueTime, StringFormat=\{0:dd-MMM HH:mm:ss\}}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="StartTime" Width="100" Binding="{Binding StartTime, StringFormat=\{0:dd-MMM HH:mm:ss\}}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="FinishTime" Width="100" Binding="{Binding FinishTime, StringFormat=\{0:dd-MMM HH:mm:ss\}}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="Uri" Width="160" Binding="{Binding Uri}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="Reason" Width="100" Binding="{Binding Reason}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="RequestedFor" Width="200" Binding="{Binding RequestedFor.DisplayName}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="RequestedBy" Width="200" Binding="{Binding RequestedBy.DisplayName}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="LastChangedBy" Width="200" Binding="{Binding LastChangedBy.DisplayName}" IsReadOnly="True" />
-                    </DataGrid.Columns>
-                </DataGrid>
-                
-                <GridSplitter Grid.Row="1" Height="5" VerticalAlignment="Stretch" />
-                
-                <DataGrid x:Name="TestRunListGrid"
-                ItemsSource="{Binding TestRunList}"
-                SelectedItem="{Binding SelectedTestRunItem}"
-                AutoGenerateColumns="False"
-                Grid.Row="2"
-                DataContextChanged="OnMainGrid_DataContextChanged"
-                >
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="StartedDate" Binding="{Binding StartedDate}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="CompletedDate" Binding="{Binding CompletedDate}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="StageName" Binding="{Binding PipelineReference.StageReference.StageName}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="State" Binding="{Binding State}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="TotalTests" Binding="{Binding TotalTests}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="PassedTests" Binding="{Binding PassedTests}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="UnanalyzedTests" Binding="{Binding UnanalyzedTests}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Id" Binding="{Binding Id}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
-                        <DataGridCheckBoxColumn Header="IsAutomated" Binding="{Binding IsAutomated}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="IncompleteTests" Binding="{Binding IncompleteTests}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="NotApplicableTests" Binding="{Binding NotApplicableTests}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Substate" Binding="{Binding Substate}" IsReadOnly="True"/>
-                    </DataGrid.Columns>
-                </DataGrid>
+            <!-- Left panel -->
+            <DockPanel Grid.Column="0" Margin="5">
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="Show BuildDef" Command="{Binding ShowBuildDefinitionTestListCommand}" Margin="2" Padding="5"/>
+                </StackPanel>
 
-                <GridSplitter Grid.Row="3" Height="5" VerticalAlignment="Stretch" />
+                <ListBox ItemsSource="{Binding Items}"
+                     SelectedItem="{Binding SelectedItem}"
+                     DisplayMemberPath="Name"
+                     Margin="0 5"/>
+            </DockPanel>
 
-                <DockPanel Grid.Row="4">
-                    <DockPanel LastChildFill="False" DockPanel.Dock="Top" Margin="5,0,5,0">
-                        <CheckBox IsChecked="{Binding ShowOnlyFailedTestCases}" Margin="0,5,5,5">Show only failed</CheckBox>
-                        <TextBlock Text="{Binding TestCasesCount}" DockPanel.Dock="Right" Margin="0,5,5,5"/>
-                        <TextBlock DockPanel.Dock="Right" Margin="0,5,5,5">Loaded:</TextBlock>
-                    </DockPanel>
-                    
-                    <DataGrid x:Name="TestCaseResultListGrid"
-                          ItemsSource="{Binding TestCaseResultList}"
-                          SelectedItem="{Binding SelectedTestCaseResultItem}"
-                          AutoGenerateColumns="False"
-                          
-                          DataContextChanged="OnMainGrid_DataContextChanged"
-                          >
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="TestCaseTitle" Binding="{Binding TestCaseTitle}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Outcome" Binding="{Binding Outcome}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="DurationInMs" Binding="{Binding DurationInMs}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="ErrorMessage" Binding="{Binding ErrorMessage}" IsReadOnly="True"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-                </DockPanel>
-            </Grid>
+            <!-- Right panel -->
+            <ContentControl Grid.Column="1" Margin="5"
+                        Content="{Binding SelectedItem}"
+                        ContentTemplateSelector="{StaticResource ResourceKey=TabTemplateSelector}">
+            </ContentControl>
         </Grid>
     </DockPanel>
 </Window>
