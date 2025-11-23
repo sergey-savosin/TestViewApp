@@ -26,10 +26,7 @@ namespace TestViewApp.ViewModel
         private TestRun selectedTestRunItem = null!;
         private CustomTestCaseResult selectedTestCaseResultItem = null!;
 
-        //private const string constKormBDeploysPath = @"\Korm B\Deploy\SaleListManagement";
-        //private const string constKormBDeploysPath = @"\Korm B\Tests\*";
-        private const string constKormBDeploysPath = @"\Korm B\**\**";
-        //private const string constKormBDeploysPath = @"\Korm B\Deploy\*";
+        private const string constKormBDeploysPath = @"\Korm B\Tests\**\**";
 
         public BuildDefinitionTestListViewModel()
         {

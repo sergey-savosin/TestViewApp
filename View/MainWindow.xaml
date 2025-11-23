@@ -55,14 +55,15 @@
         </StackPanel>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="80"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Left panel -->
+            <!-- Left panel: buttons and windows list -->
             <DockPanel Grid.Column="0" Margin="5">
-                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Content="Show BuildDef" Command="{Binding ShowBuildDefinitionTestListCommand}" Margin="2" Padding="5"/>
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" HorizontalAlignment="Center">
+                    <Button Content="Test list" Command="{Binding ShowBuildDefinitionTestListCommand}" Margin="2" Padding="2"/>
+                    <Button Content="Test details" Command="{Binding ShowTestDetailsCommand}" Margin="2" Padding="2"/>
                 </StackPanel>
 
                 <ListBox ItemsSource="{Binding Items}"
@@ -71,7 +72,7 @@
                      Margin="0 5"/>
             </DockPanel>
 
-            <!-- Right panel -->
+            <!-- Right panel: opened tabs -->
             <ContentControl Grid.Column="1" Margin="5"
                         Content="{Binding SelectedItem}"
                         ContentTemplateSelector="{StaticResource ResourceKey=TabTemplateSelector}">

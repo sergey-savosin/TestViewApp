@@ -19,10 +19,9 @@
                 <HierarchicalDataTemplate ItemsSource="{Binding Path=Children}">
                     <TextBlock>
                         <TextBlock.Text>
-                            <MultiBinding StringFormat="{}{0}: {1} [Id: {2}]">
+                            <MultiBinding StringFormat="{}{0}: {1}">
                                 <Binding Path="Path"/>
                                 <Binding Path="Name"/>
-                                <Binding Path="Id"/>
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>
@@ -51,14 +50,9 @@
                     <DataGridTextColumn Header="BuildNumber" Width="400" Binding="{Binding BuildNumber}" IsReadOnly="True" />
                     <DataGridTextColumn Header="Status" Width="80" Binding="{Binding Status}" IsReadOnly="True" />
                     <DataGridTextColumn Header="Result" Width="80" Binding="{Binding Result}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="QueueTime" Width="100" Binding="{Binding QueueTime, StringFormat=\{0:dd-MMM HH:mm:ss\}}" IsReadOnly="True" />
                     <DataGridTextColumn Header="StartTime" Width="100" Binding="{Binding StartTime, StringFormat=\{0:dd-MMM HH:mm:ss\}}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="FinishTime" Width="100" Binding="{Binding FinishTime, StringFormat=\{0:dd-MMM HH:mm:ss\}}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="Uri" Width="160" Binding="{Binding Uri}" IsReadOnly="True" />
                     <DataGridTextColumn Header="Reason" Width="100" Binding="{Binding Reason}" IsReadOnly="True" />
                     <DataGridTextColumn Header="RequestedFor" Width="200" Binding="{Binding RequestedFor.DisplayName}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="RequestedBy" Width="200" Binding="{Binding RequestedBy.DisplayName}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="LastChangedBy" Width="200" Binding="{Binding LastChangedBy.DisplayName}" IsReadOnly="True" />
                 </DataGrid.Columns>
             </DataGrid>
 
@@ -80,12 +74,9 @@
                     <DataGridTextColumn Header="TotalTests" Binding="{Binding TotalTests}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="PassedTests" Binding="{Binding PassedTests}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="UnanalyzedTests" Binding="{Binding UnanalyzedTests}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="Id" Binding="{Binding Id}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
-                    <DataGridCheckBoxColumn Header="IsAutomated" Binding="{Binding IsAutomated}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="IncompleteTests" Binding="{Binding IncompleteTests}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="NotApplicableTests" Binding="{Binding NotApplicableTests}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="Substate" Binding="{Binding Substate}" IsReadOnly="True"/>
                 </DataGrid.Columns>
             </DataGrid>
 
