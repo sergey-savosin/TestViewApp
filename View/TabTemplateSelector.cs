@@ -18,6 +18,8 @@ namespace TestViewApp.View
             {
                 case BuildDefinitionTestListViewModel p:
                     return FindDataTemplate(containerFrameworkElement, "BuildDefinitionTestListView");
+                case TestStatisticsViewModel p:
+                    return FindDataTemplate(containerFrameworkElement, "TestStatisticsListView");
                 default:
                     throw new ArgumentException(nameof(item));
             }

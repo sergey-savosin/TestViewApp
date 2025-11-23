@@ -32,6 +32,9 @@
         <DataTemplate x:Key="BuildDefinitionTestListView">
             <views:BuildDefinitionTestListView/>
         </DataTemplate>
+        <DataTemplate x:Key="TestStatisticsListView">
+            <views:TestStatisticsListView/>
+        </DataTemplate>
 
     </Window.Resources>
     <DockPanel>
@@ -64,6 +67,7 @@
                 <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" HorizontalAlignment="Center">
                     <Button Content="Test list" Command="{Binding ShowBuildDefinitionTestListCommand}" Margin="2" Padding="2"/>
                     <Button Content="Test details" Command="{Binding ShowTestDetailsCommand}" Margin="2" Padding="2"/>
+                    <Button Content="Test stats" Command="{Binding ShowTestStatisticsCommand}" Margin="2" Padding="2"/>
                 </StackPanel>
 
                 <ListBox ItemsSource="{Binding Items}"

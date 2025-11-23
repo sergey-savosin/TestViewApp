@@ -11,6 +11,7 @@ namespace TestViewApp.ViewModel
         public ObservableCollection<IListItem> Items { get; } = new ObservableCollection<IListItem>();
         public RelayCommand ShowBuildDefinitionTestListCommand { get; }
         public RelayCommand ShowTestDetailsCommand { get; }
+        public RelayCommand ShowTestStatisticsCommand { get; }
 
         public IListItem SelectedItem
         {
@@ -26,6 +27,7 @@ namespace TestViewApp.ViewModel
         {
             ShowBuildDefinitionTestListCommand = new RelayCommand(_ => AddItem(new BuildDefinitionTestListViewModel { Name = "TestList" }));
             ShowTestDetailsCommand = new RelayCommand(_ => GetTest());
+            ShowTestStatisticsCommand = new RelayCommand(_ => AddItem(new TestStatisticsViewModel { Name = "TestStat" }));
         }
 
         private void AddItem(IListItem item)
